@@ -499,6 +499,7 @@
   .od-status-panel.cancelled{background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.3);}
   .od-status-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
   .od-status-title{font-size:15px;font-weight:800;color:#fff;}
+  .od-status-title.executed{color:var(--accent);letter-spacing:-.005em;}
   .od-status-line{font-size:12px;font-weight:600;color:#d1d5db;margin-bottom:2px;}
   .od-status-id{font-size:11px;font-weight:600;color:#9ca3af;display:flex;align-items:center;gap:6px;margin-top:6px;}
   .od-status-id button{background:none;border:none;color:#9ca3af;padding:0;display:flex;cursor:pointer;}
@@ -741,6 +742,7 @@
   body[data-theme="light"] nav{background:rgba(255,255,255,0.75);border-color:rgba(0,0,0,0.08);}
   body[data-theme="light"] .side-drawer{background:#ffffff;border-right-color:rgba(0,0,0,0.08);}
 
+  body[data-theme="light"] .od-status-title.executed{color:#059669;}
   body[data-theme="light"] .od-progress{background:rgba(0,0,0,0.08);}
   body[data-theme="light"] .od-status-btn{background:rgba(0,0,0,0.045);}
   body[data-theme="light"] .od-status-btn:active{background:rgba(0,0,0,0.08);}
@@ -3644,12 +3646,16 @@ let txExpandedId = null;
 const TX_ORDERS = [
   { id:'BGQD2-09UE-O3U7-6S8M', strategy:'Raptor',    pair:'EUR/USD', side:'Buy',  direction:null, dealt:'EUR', amount:'1,000,000',   filled:'1,000,000',   gamma:null, netOpenPos:null, bought:'1,000,000',   sold:null,          rate:'1.13955',   status:'Executed' },
   { id:'BGQD2-S4EB-M1A1-NFH3', strategy:'Raptor',    pair:'EUR/USD', side:'Sell', direction:null, dealt:'EUR', amount:'2,500,000',   filled:'2,500,000',   gamma:null, netOpenPos:null, bought:null,          sold:'2,500,000',   rate:'1.139572',  status:'Executed' },
+  { id:'BGQD2-K7WD-P3XA-Q9LM', strategy:'Raptor', pair:'EUR/USD', side:'Buy', direction:null, dealt:'EUR', amount:'5,000,000', filled:'0', gamma:null, netOpenPos:null, bought:'0', sold:null, rate:'1.1420', status:'Working' },
   { id:'BGQD2-AY9B-RLYV-65P4', strategy:'Raptor',    pair:'EUR/USD', side:'Buy',  direction:null, dealt:'EUR', amount:'2,500,000',   filled:'0',           gamma:null, netOpenPos:null, bought:'0',           sold:null,          rate:'0.0000',    status:'Cancelled' },
+  { id:'BGQD2-H2ZT-C8VN-4RDE', strategy:'Chameleon', pair:'EUR/USD', side:'Sell', direction:null, dealt:'EUR', amount:'10,000,000', filled:'4,000,000', gamma:null, netOpenPos:null, bought:null, sold:'4,000,000', rate:'1.13962', status:'Partially Filled' },
   { id:'BGQD2-8WIB-YVYT-M2CH', strategy:'Chameleon', pair:'EUR/USD', side:'Buy',  direction:null, dealt:'EUR', amount:'100,000,000', filled:'100,000,000', gamma:null, netOpenPos:null, bought:'100,000,000', sold:null,          rate:'1.1395667', status:'Executed' },
   { id:'BGQD2-YMCL-V9N5-3SQF', strategy:'Raptor',    pair:'EUR/USD', side:'Sell', direction:null, dealt:'EUR', amount:'1,000,000',   filled:'1,000,000',   gamma:null, netOpenPos:null, bought:null,          sold:'1,000,000',   rate:'1.1396',    status:'Executed' },
+  { id:'BGQD2-T6QF-N1YB-XJ5W', strategy:'Raptor', pair:'EUR/USD', side:'Buy', direction:null, dealt:'EUR', amount:'2,000,000', filled:'500,000', gamma:null, netOpenPos:null, bought:'500,000', sold:null, rate:'1.13948', status:'Suspended' },
   { id:'BGQD2-NCMH-CA8X-WZ..', strategy:'Raptor',    pair:'EUR/USD', side:'Buy',  direction:null, dealt:'EUR', amount:'2,500,000',   filled:'0',           gamma:null, netOpenPos:null, bought:'0',           sold:null,          rate:'0.0000',    status:'Cancelled' },
   { id:'BGQD2-R8JN-F2TD-TZQ8', strategy:'Raptor',    pair:'EUR/USD', side:'Sell', direction:null, dealt:'EUR', amount:'2,500,000',   filled:'2,500,000',   gamma:null, netOpenPos:null, bought:null,          sold:'2,500,000',   rate:'1.1397',    status:'Executed' },
   { id:'BGQD2-NB6J-V2QD-3CGO', strategy:'Raptor',    pair:'EUR/USD', side:'Sell', direction:null, dealt:'EUR', amount:'1,000,000',   filled:'1,000,000',   gamma:null, netOpenPos:null, bought:null,          sold:'1,000,000',   rate:'1.13968',   status:'Executed' },
+  { id:'BGQD2-V3LC-D7RM-8HKP', strategy:'Raptor', pair:'EUR/USD', side:'Sell', direction:null, dealt:'EUR', amount:'3,000,000', filled:'0', gamma:null, netOpenPos:null, bought:null, sold:'0', rate:'1.1450', status:'Suspended' },
   { id:'BGQD2-QIUQ-UW13-YHG7', strategy:'Raptor',    pair:'EUR/USD', side:'Sell', direction:null, dealt:'EUR', amount:'1,000,000',   filled:'1,000,000',   gamma:null, netOpenPos:null, bought:null,          sold:'1,000,000',   rate:'1.13967',   status:'Executed' }
 ];
 
@@ -3677,7 +3683,7 @@ function renderTXOrderCards(elId){
     <div class="tx-card" data-id="${o.id}">
       <div class="tx-card-top">
         <span class="tx-order-id mono">${o.id}</span>
-        <span class="tx-status ${o.status.toLowerCase()}">${o.status}</span>
+        <span class="tx-status ${o.status.toLowerCase().replace(/\s+/g,'-')}">${o.status}</span>
       </div>
       <div class="tx-card-mid">
         <div class="tx-pair-wrap">
@@ -3864,6 +3870,7 @@ const STOP_ICON = `<svg width="11" height="11" viewBox="0 0 24 24" fill="current
 function buildOrderDetailBody(o){
   const [base, quote] = o.pair.split('/');
   const isCancelled = o.status === 'Cancelled';
+  const isExecuted = o.status === 'Executed';
   const amountNum = parseFloat(o.amount.replace(/,/g,'')) || 0;
   const filledNum = parseFloat(o.filled.replace(/,/g,'')) || 0;
   const remaining = isCancelled ? '0' : (amountNum - filledNum).toLocaleString('en-US');
@@ -3873,7 +3880,7 @@ function buildOrderDetailBody(o){
     <div class="tx-card">
       <div class="od-summary-top">
         <span class="tx-order-id mono">${o.id}</span>
-        <span class="tx-status ${o.status.toLowerCase()}">${o.status}</span>
+        <span class="tx-status ${o.status.toLowerCase().replace(/\s+/g,'-')}">${o.status}</span>
       </div>
       <div class="od-summary-mid">
         <div class="tx-pair-wrap">
@@ -3910,21 +3917,58 @@ function buildOrderDetailBody(o){
       </div>
     </div>
 
-    <div class="od-status-panel ${isCancelled ? 'cancelled' : 'active'}">
-      <div class="od-status-top">
-        <span class="tx-status ${o.status.toLowerCase()}">${o.status}</span>
-      </div>
-      <div class="od-status-title">Total Bought</div>
-      <div class="od-status-line">Total Remaining: ${remaining}</div>
-      <div class="od-status-id">Id: 1908874193 <button aria-label="Copy order id">${COPY_ICON}</button></div>
-      <div class="od-progress"><div class="od-progress-fill" style="width:${filledPct}%;"></div></div>
-      ${!isCancelled ? `
-      <div class="od-status-buttons">
-        <button class="od-status-btn">${PAUSE_ICON} Suspend</button>
-        <button class="od-status-btn">${STOP_ICON} Cancel</button>
-      </div>` : ``}
-    </div>
+    ${buildIxStatusPanel(o, { isCancelled, isExecuted, remaining, filledPct })}
   `;
+}
+
+/* Status panel at the foot of the iX order detail.
+   Executed  -> "Executed: <filled> @ <rate>" + Id + full bar, no Suspend/Cancel (order is done)
+   Cancelled -> red panel, no actions
+   Live      -> Suspend / Cancel actions */
+function ixOrderId(o){
+  const idx = Math.max(0, TX_ORDERS.findIndex(x => x.id === o.id));
+  return String(1908874193 + idx * 12);
+}
+function buildIxStatusPanel(o, { isCancelled, isExecuted, remaining, filledPct }){
+  const cortexId = ixOrderId(o);
+  const idRow = `<div class="od-status-id">Id: ${cortexId} <button aria-label="Copy order id">${COPY_ICON}</button></div>`;
+  const statusCls = o.status.toLowerCase().replace(/\s+/g,'-');
+  if (isExecuted){
+    return `
+    <div class="od-status-panel active executed">
+      <div class="od-status-top"><span class="tx-status ${statusCls}">${o.status}</span></div>
+      <div class="od-status-title executed">Executed: ${o.filled} @ ${o.rate}</div>
+      <div class="od-status-line">${o.side === 'Buy' ? 'Total Bought' : 'Total Sold'}: ${o.filled} ${o.dealt} · Remaining: 0</div>
+      ${idRow}
+      <div class="od-progress"><div class="od-progress-fill" style="width:100%;"></div></div>
+    </div>`;
+  }
+  if (isCancelled){
+    return `
+    <div class="od-status-panel cancelled">
+      <div class="od-status-top"><span class="tx-status ${statusCls}">${o.status}</span></div>
+      <div class="od-status-title">${o.side === 'Buy' ? 'Total Bought' : 'Total Sold'}</div>
+      <div class="od-status-line">Total Remaining: ${remaining}</div>
+      ${idRow}
+      <div class="od-progress"><div class="od-progress-fill" style="width:${filledPct}%;"></div></div>
+    </div>`;
+  }
+  // Live orders (Working / Partially Filled / Suspended): fill so far + actions
+  const isSuspended = o.status === 'Suspended';
+  const hasFill = (parseFloat(o.filled.replace(/,/g,'')) || 0) > 0;
+  const titleAmt = hasFill ? o.filled : o.amount;
+  return `
+    <div class="od-status-panel active">
+      <div class="od-status-top"><span class="tx-status ${statusCls}">${o.status}</span></div>
+      <div class="od-status-title">${o.status}: ${titleAmt} @ ${o.rate}</div>
+      <div class="od-status-line">Total Remaining: ${remaining} ${o.dealt}</div>
+      ${idRow}
+      <div class="od-progress"><div class="od-progress-fill" style="width:${filledPct}%;"></div></div>
+      <div class="od-status-buttons">
+        <button class="od-status-btn">${isSuspended ? '▶ Resume' : PAUSE_ICON + ' Suspend'}</button>
+        <button class="od-status-btn">${STOP_ICON} Cancel</button>
+      </div>
+    </div>`;
 }
 
 function openOrderDetail(id){
