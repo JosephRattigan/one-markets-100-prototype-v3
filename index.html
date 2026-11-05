@@ -2547,12 +2547,18 @@ function sendAllmPrompt(raw, opts = {}){
   } else {
     const { instruction, content } = splitAllmComposedText(text);
     const hasQuote = !!(allmPastedText && content === allmPastedText);
+    // Anything sent without pasted text (a skill or a typed prompt) renders as
+    // the left-aligned tagged card, matching the Suggestion bubble, rather
+    // than a plain right-hand user bubble.
+    const plainPrompt = !instruction && !hasQuote;
     if (instruction){
       allmMessages.push({ role:'prompt', text: instruction, quote: hasQuote ? content : null, fromSkill: allmInstructionIsSkill });
+    } else if (plainPrompt){
+      allmMessages.push({ role:'prompt', text: content, quote: null, fromSkill: allmInstructionIsSkill });
     } else {
       allmMessages.push({ role:'user', text: content, hasQuote });
     }
-    allmMessages.push({ role:'assistant', text: generateAllmFakeAnswer(instruction || '', hasQuote ? content : null) });
+    allmMessages.push({ role:'assistant', text: generateAllmFakeAnswer(instruction || (plainPrompt ? content : ''), hasQuote ? content : null) });
     allmLastUsedPrompt = instruction || content;
   }
   allmSuggestionDismissed = false;
